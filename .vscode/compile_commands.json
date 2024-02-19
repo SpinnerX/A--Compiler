@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/aaronher/Desktop/A--Compiler/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aaronher/Desktop/A--Compiler/include -I/Users/aaronher/Desktop/A--Compiler/include/tokenizer -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -o CMakeFiles/A-Compiler.dir/src/main.cc.o -c /Users/aaronher/Desktop/A--Compiler/src/main.cc",
+  "file": "/Users/aaronher/Desktop/A--Compiler/src/main.cc",
+  "output": "CMakeFiles/A-Compiler.dir/src/main.cc.o"
+},
+{
+  "directory": "/Users/aaronher/Desktop/A--Compiler/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aaronher/Desktop/A--Compiler/include -I/Users/aaronher/Desktop/A--Compiler/include/tokenizer -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -o CMakeFiles/A-Compiler.dir/src/tokenizer/token.cc.o -c /Users/aaronher/Desktop/A--Compiler/src/tokenizer/token.cc",
+  "file": "/Users/aaronher/Desktop/A--Compiler/src/tokenizer/token.cc",
+  "output": "CMakeFiles/A-Compiler.dir/src/tokenizer/token.cc.o"
+}
+]
