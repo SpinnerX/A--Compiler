@@ -1,5 +1,5 @@
 #pragma once
-#include <iomanip>
+#include <string>
 #include <optional>
 #include <vector>
 #include <map>
@@ -39,9 +39,11 @@ namespace A_Compiler{
 		CHARACTER,
 		DOUBLE,
 		FLOAT,
-		ASSIGNMENT_OPERATOR,
+		OPERATOR,
 		SEMICOLON,
-		RETURN
+		COMMA,
+		RETURN,
+		IDENTIFIER
 	};
 
 
@@ -94,5 +96,6 @@ namespace A_Compiler{
 	private:
 		std::vector<Token> tokens; // @note Containing all the tokens we read through inputs
 		std::string _filename; // @note filename we are passing into the tokenizer.
+		std::map<std::string, TokenType> tokenIdentifiers; // @note containing the corresponding operators/keywords along with their enum.
 	};
 };

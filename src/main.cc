@@ -1,8 +1,6 @@
 #include <filesystem>
 #include <fstream>
 #include <tokenizer/token.h>
-#include <map>
-#include <istream>
 #include <string>
 #include <iostream>
 
@@ -31,9 +29,15 @@ std::string readFromFile(std::string file){
 
 
 
-int main(int argc, char** argv){
-
+int main(int argc, char* argv[]){
+	if(argc < 0){
+		printf("Usage: acc file expected!\n");
+		return -1;
+	}
+	
+	/* std::string file(argv[1]); */
 	std::string file = "main.acc";
+
 	std::filesystem::path filepath(file);
 
 	if(filepath.empty() || filepath.extension() != ".acc"){

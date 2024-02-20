@@ -1,5 +1,6 @@
 #include <tokenizer/token.h>
 #include <fstream>
+#include <iostream>
 
 namespace A_Compiler{
 
@@ -7,8 +8,9 @@ namespace A_Compiler{
 	static TokenType identifierState(const std::string& str){
 		if(str == "int") return TokenType::INTEGER;
 		else if(str == "double") return TokenType::DOUBLE;
+		else if(str == "float") return TokenType::FLOAT;
 		else if(str == "return") return TokenType::RETURN;
-		else if(str == "=") return TokenType::ASSIGNMENT_OPERATOR;
+		else if(str == "=") return TokenType::OPERATOR;
 		else if(str == ";") return TokenType::SEMICOLON;
 		return TokenType::NONE;
 	}
@@ -18,10 +20,12 @@ namespace A_Compiler{
 	static std::string identifierToString(TokenType& type){
 		if(type == TokenType::INTEGER) return "TokenType::INTEGER";
 		else if(type == TokenType::DOUBLE) return "TokenType::DOUBLE";
+		else if(type == TokenType::FLOAT) return "TokenType::FLOAT";
 		else if(type == TokenType::RETURN) return "TokenType::RETURN";
-		else if(type == TokenType::ASSIGNMENT_OPERATOR) return "TokenType::ASSIGNMENT_OPERATOR";
+		else if(type == TokenType::OPERATOR) return "TokenType::OPERATOR";
 		else if(type == TokenType::SEMICOLON) return "TokenType::SEMICOLON";
-		return "TokenType::NONE";
+		else if(type == TokenType::COMMA) return "TokenType::COMMA";
+		return "TokenType::IDENTIFIER";
 	}
 
 	Token::Token(){}
@@ -33,6 +37,8 @@ namespace A_Compiler{
 	Tokenizer::~Tokenizer(){}
 
 	Tokenizer* Tokenizer::InitializeTokenizer(const std::string& filename){
+		// @note TODO: initiating lookup table for keywords, data types, and operators.
+
 		return new Tokenizer(filename);
 	}
 
@@ -46,13 +52,14 @@ namespace A_Compiler{
 
 			if(!ins)
 				break;
-			if(token.back() == ';'){
+
+			if(token.back() == ';'){ // @note checking if there is a semicolon at the end of token
 				std::string lastToken = token.substr(0, token.size()-1);
 				std::string semicolon = ";";
 				tokens.push_back(Token(identifierState(lastToken), lastToken));
 				tokens.push_back(Token(identifierState(semicolon), semicolon));
 			}
-			else if(token.back() == ','){
+			else if(token.back() == ','){ // @note checking if there is comma at the end of token
 				std::string tokenWithComma = token.substr(0, token.size()-1);
 				std::string commaToken = ",";
 				tokens.push_back(Token(identifierState(tokenWithComma), tokenWithComma));
