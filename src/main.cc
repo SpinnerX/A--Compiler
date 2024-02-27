@@ -1,8 +1,10 @@
 #include <filesystem>
 #include <fstream>
 #include <tokenizer/token.h>
+#include <parser/parserTree.h>
 #include <string>
 #include <iostream>
+#include <stack>
 
 // @note reading from file.
 // @note fetching contents from file.
@@ -53,12 +55,22 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
-	A_Compiler::Tokenizer* tokenizer = A_Compiler::Tokenizer::InitializeTokenizer(file);
+	A_Compiler::Tokenizer* tokenizer;
 	
-	printf("Printing Tokens\n");
-	for(auto& token : tokenizer->tokenize(file).tokens){
-		printf("%s\n", token.value()->c_str());
-	}
+	std::stack<std::string> tokens = tokenizer->tokenize(file);
+
+	A_Compiler::ParserTree tree;
+	A_Compiler::Node* exp = tree.evaluate(tokens);
+	
+	
+	std::cout << exp << '\n';
+	
+	/* while(!tokens.empty()){ */
+	/* 	std::string token = tokens.top(); */
+	/* 	std::cout << token << '\n'; */
+	/* 	tokens.pop(); */
+	/* } */
+
 
 	return 0;
 }
