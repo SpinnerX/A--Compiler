@@ -1,6 +1,7 @@
 #pragma once
 #include <tokenizer/token.h>
 #include <parser/Node.h>
+#include <set>
 
 namespace A_Compiler{
 	
@@ -18,35 +19,32 @@ namespace A_Compiler{
 	 * 
 	 * @function evaluate
 	 * @note evaluates the parsed expression into the form of an AST.
-	 *
+	 
+	z = (x + y) * 2;
+		=
+	/		\
+[(x + y)]	[*]
+	/	\	/
+[x]		[y]	[2]
+
 	 * */
 	class ParserTree{
-		ParserTree(const Tokenizer::TokenState tokens);
 	public:
-
-		// @note initializing the parser tree.
-		static ParserTree* InitializeParserTree(Tokenizer::TokenState tokenStates);
-		
-		// @note basic tree operations.
-		/* void insert(Node* node); */
-
-		/* void remove(Node* node); */
-		
+		ParserTree();
 		// @note returns false if evaluation has an error occurred.
-		bool evaluate();
+		Node* evaluate(std::stack<std::string>& tokens);
 
-		// @note traversal operations
-		/* void inorderTraversal(); */
-		/* void preorderTraversal(); */
-		/* void postorderTraversal(); */
-	
-		// @note Note to Self: may change this later
-		// @note Note to Self: Am still thinking of this, may come back once I get a clearer visual of the operations.
-		/* void display(); */
 
 	private:
-		Tokenizer::TokenState _tokens; // @note contains the tokens setup by the tokenizer.
-		Node* root;
+		// @note checking if the string is an integer, double/float
+		bool isStringInteger(std::string token);
+
+	private:
+		Node* root=nullptr;
+		// @note operators lookup table
+		std::map<std::string, DataTypes> opLookupTable;
+		// @note literal data types look up table for keywords such as (int, double, float, etc.)
+		std::map<std::string, DataTypes> dataTypesKeywordsLookupTable;
 	};
 
 };

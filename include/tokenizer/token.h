@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <stack>
 
 /*
  * @class Token
@@ -30,51 +31,27 @@
 */
 
 namespace A_Compiler{
-	// @note contains different types of tokens we read from file
-	enum class TokenType : uint8_t {
-		NONE=0,
-		// Literal-DataTypes
-		INTEGER,
-		STRING,
-		CHARACTER,
-		DOUBLE,
-		FLOAT,
-		OPERATOR,
-		SEMICOLON,
-		COMMA,
-		RETURN,
-		IDENTIFIER
-	};
-
-
-	class Token{
-	public:
-		Token();
-		Token(const TokenType& t, const std::string& v);
-		
-		TokenType tokenType() const { return type; }
-		std::optional<std::string> value() const { return tokenValue; }
 	
-	private:
-		TokenType type = TokenType::NONE;
-		std::optional<std::string> tokenValue;
-	};
-
+	// @note Tokenizer should only be tokenizing the file into tokens pushing to a stack
+	// @note the parser will be what handles evaluating what everything is.
+	// @note Meaning that the parser will help identify what each of the tokens are.
 	class Tokenizer{
-		Tokenizer(const std::string& name);
 	public:
-		struct TokenState{
-			bool isGood = false;
-			std::vector<Token> tokens;
-		};
-
 		Tokenizer() = default;
 		~Tokenizer();
-		static Tokenizer* InitializeTokenizer(const std::string& filename);
 
-		TokenState tokenize(const std::string& file, char delimeter='\n');
+		std::stack<std::string> tokenize(const std::string& file, char delimeter='\n');
 
-		std::string getTokenType(TokenType&& type) const;
+		friend std::ostream& operator<<(std::ostream& outs, const Tokenizer& t){
+			std::stack<std::string> tokens = t.tokens;
+
+			while(!tokens.empty()){
+				std::string token = tokens.top();
+				outs << token << '\n';
+				tokens.pop();
+			}
+			return outs;
+		}
 
 	private:
 		template<typename T>
@@ -94,8 +71,6 @@ namespace A_Compiler{
 			}
 		}
 	private:
-		std::vector<Token> tokens; // @note Containing all the tokens we read through inputs
-		std::string _filename; // @note filename we are passing into the tokenizer.
-		std::map<std::string, TokenType> tokenIdentifiers; // @note containing the corresponding operators/keywords along with their enum.
+		std::stack<std::string> tokens; // @note Containing all the tokens we read through inputs
 	};
 };
