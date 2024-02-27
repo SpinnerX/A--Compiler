@@ -1,5 +1,5 @@
-# A--Compiler
-Developing my own compiler for experiementing with compiler design
+# A-Compiler
+Developing my own compiler for experiementing with compiler design. Developing a language for myself, called Argon++.
 
 
 ### Tokenizer (Some Information)
@@ -12,12 +12,24 @@ Developing my own compiler for experiementing with compiler design
 * File extension is going to be `main.acc` \
 * When compiling with a++ it'll be: `a++ main.acc`
 
-### Language Usage
-* printing `print "Hello World"`
-* Variables `int x = 10`
-* Classes `class Point{ def Point(){} }; `
+
 
 
 ### Iterations
 * Tokenization (Lexer) -> Parser(Analyzer) -> AST
+
+
+
+## Syntax Usage for Argon++
+
+### Variables Expressions and Print Statement
+* These are different variations of variables expressions.
+* `int x = 10;` \
+* `int z = (x + y) * 2;` \
+* These are variations of print statements
+* `print "Hello World"` \
+* `print f"X = {x}"` \
+* `print(f"X = {10}")`
+
+
 
