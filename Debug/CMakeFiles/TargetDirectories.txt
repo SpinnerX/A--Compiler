@@ -1,3 +1,0 @@
-/Users/aaronher/Desktop/A--Compiler/Debug/CMakeFiles/A-Compiler.dir
-/Users/aaronher/Desktop/A--Compiler/Debug/CMakeFiles/edit_cache.dir
-/Users/aaronher/Desktop/A--Compiler/Debug/CMakeFiles/rebuild_cache.dir
