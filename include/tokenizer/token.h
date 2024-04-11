@@ -52,7 +52,7 @@ namespace A_Compiler{
 		Token(char op, Token* l, Token* r)  : operators(op), left(l), right(r) {}
 
 
-
+https://stackoverflow.com/questions/11703082/parsing-math-expression-in-c
 
 	};
 	
