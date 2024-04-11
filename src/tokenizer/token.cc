@@ -3,7 +3,11 @@
 #include <iostream>
 
 namespace A_Compiler{
-	Tokenizer::~Tokenizer(){}
+	Tokenizer* Tokenizer::instance = nullptr;
+	
+	Tokenizer::~Tokenizer(){
+		instance = this;
+	}
 
 	std::stack<std::string> Tokenizer::tokenize(const std::string& file, char delimeter){
 		std::stack<std::string> tokens;

@@ -5,6 +5,10 @@
 #include <map>
 #include <fstream>
 #include <stack>
+#include "utils/types.h"
+#include <ostream>
+#include <iostream>
+#include <type_traits>
 
 /*
  * @class Token
@@ -27,10 +31,30 @@
  *
  *
  * @class Tokenizer
+ =
  * @note reading in each Token one at a time.
 */
 
 namespace A_Compiler{
+	enum class OPERATIONS : uint8_t {
+		ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION
+	};
+
+	struct Token{
+		std::string variable = "";
+	};
+
+	struct Token{
+		Token* left;
+		Token* right;
+		char operators; //! @note +, -, *, /
+
+		Token(char op, Token* l, Token* r)  : operators(op), left(l), right(r) {}
+
+
+
+
+	};
 	
 	// @note Tokenizer should only be tokenizing the file into tokens pushing to a stack
 	// @note the parser will be what handles evaluating what everything is.
@@ -40,7 +64,13 @@ namespace A_Compiler{
 		Tokenizer() = default;
 		~Tokenizer();
 
+
+		std::string output() const { return outputToken; }
+
 		std::stack<std::string> tokenize(const std::string& file, char delimeter='\n');
+
+
+
 
 		friend std::ostream& operator<<(std::ostream& outs, const Tokenizer& t){
 			std::stack<std::string> tokens = t.tokens;
@@ -52,6 +82,8 @@ namespace A_Compiler{
 			}
 			return outs;
 		}
+
+		size_t size() const { return tokens.size(); }
 
 	private:
 		template<typename T>
@@ -70,7 +102,31 @@ namespace A_Compiler{
 				return retval;
 			}
 		}
+
+		template<class T>
+		T tokenize(const std::string prompt = "") {
+			while (true) {
+				if (std::cin.eof()) //We reached the end of file, or the user hit ctrl-d
+					return T(); //Alternatively, we could throw an exception
+				T retval;
+				// std::cout << prompt;
+				std::cin >> retval;
+				if (!std::cin) {
+					std::cin.clear(); //Clear error code
+					std::string s;
+					std::cin >> s; //Remove the word that caused the error
+					continue;
+				}
+				return retval;
+			}
+		}
+
 	private:
+
+
+	private:
+		static Tokenizer* instance;
 		std::stack<std::string> tokens; // @note Containing all the tokens we read through inputs
+		std::string outputToken;
 	};
 };
