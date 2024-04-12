@@ -1,5 +1,5 @@
 #pragma once
-#include <tokenizer/token.h>
+#include <lexer/token.h>
 #include <parser/Node.h>
 #include <set>
 
@@ -28,23 +28,23 @@ namespace A_Compiler{
 [x]		[y]	[2]
 
 	 * */
-	class ParserTree{
-	public:
-		ParserTree();
-		// @note returns false if evaluation has an error occurred.
-		Node* evaluate(std::stack<std::string>& tokens);
+	// class ParserTree{
+	// public:
+	// 	ParserTree();
+	// 	// @note returns false if evaluation has an error occurred.
+	// 	Node* evaluate(std::stack<std::string>& tokens);
 
 
-	private:
-		// @note checking if the string is an integer, double/float
-		bool isStringInteger(std::string token);
+	// private:
+	// 	// @note checking if the string is an integer, double/float
+	// 	bool isStringInteger(std::string token);
 
-	private:
-		Node* root=nullptr;
-		// @note operators lookup table
-		std::map<std::string, DataTypes> opLookupTable;
-		// @note literal data types look up table for keywords such as (int, double, float, etc.)
-		std::map<std::string, DataTypes> dataTypesKeywordsLookupTable;
-	};
+	// private:
+	// 	Node* root=nullptr;
+	// 	// @note operators lookup table
+	// 	std::map<std::string, DataTypes> opLookupTable;
+	// 	// @note literal data types look up table for keywords such as (int, double, float, etc.)
+	// 	std::map<std::string, DataTypes> dataTypesKeywordsLookupTable;
+	// };
 
 };

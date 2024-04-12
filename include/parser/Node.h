@@ -1,6 +1,6 @@
 #pragma once
-#include <tokenizer/token.h>
-#include <types.h>
+#include <lexer/token.h>
+#include <utils/types.h>
 
 namespace A_Compiler{
 	
@@ -21,34 +21,34 @@ namespace A_Compiler{
 	 * @note this will act as a way to be adding to left side of the leaf. (same with right node)
 	 *
 	 * */
-	struct Node{
-		std::string typeId="Default typeID";
-		std::string id="Default";
-		DataTypes op = DataTypes::DEFAULT;
-		std::string value="Default Value";
-		Node* left = nullptr;
-		Node* right = nullptr;
+	// struct Node{
+	// 	std::string typeId="Default typeID";
+	// 	std::string id="Default";
+	// 	DataTypes op = DataTypes::DEFAULT;
+	// 	std::string value="Default Value";
+	// 	Node* left = nullptr;
+	// 	Node* right = nullptr;
 
-		friend std::ostream& operator<<(std::ostream& outs, const Node* node){
-			outs << "Node Information\n";
-			outs << "Id is " << node->id << '\n';
-			outs << "Operator is " << node->operatorToString() << '\n';
-			outs << "Value is " << node->value << '\n';
-			return outs << "Variable Expression: " << node->typeId << ' ' << node->id << ' ' << node->operatorToString() << ' ' << node->value;
-		}
+	// 	friend std::ostream& operator<<(std::ostream& outs, const Node* node){
+	// 		outs << "Node Information\n";
+	// 		outs << "Id is " << node->id << '\n';
+	// 		outs << "Operator is " << node->operatorToString() << '\n';
+	// 		outs << "Value is " << node->value << '\n';
+	// 		return outs << "Variable Expression: " << node->typeId << ' ' << node->id << ' ' << node->operatorToString() << ' ' << node->value;
+	// 	}
 
-	private:
-		// @note For debugging purposes for checking if DataTypes assigned to the nodes are correct.
-		std::string operatorToString() const{
-			switch (op) {
-			case DataTypes::STRING: return "DataTypes::STRING";
-			case DataTypes::INTEGER: return "DataTypes::INTEGER";
-			case DataTypes::DOUBLE: return "DataTypes::DOUBLE";
-			case DataTypes::FLOAT: return "DataTypes::FLOAT";
-			case DataTypes::OPERATOR_EQ: return "=";
-			default: return "DataTypes::DEFAULT";
-			}
-			/* case DataTypes::OPERATOR_EQ: return "DataTypes::OPERATOR_EQ"; */
-		}
-	};
+	// private:
+	// 	// @note For debugging purposes for checking if DataTypes assigned to the nodes are correct.
+	// 	std::string operatorToString() const{
+	// 		switch (op) {
+	// 		case DataTypes::STRING: return "DataTypes::STRING";
+	// 		case DataTypes::INTEGER: return "DataTypes::INTEGER";
+	// 		case DataTypes::DOUBLE: return "DataTypes::DOUBLE";
+	// 		case DataTypes::FLOAT: return "DataTypes::FLOAT";
+	// 		case DataTypes::OPERATOR_EQ: return "=";
+	// 		default: return "DataTypes::DEFAULT";
+	// 		}
+	// 		/* case DataTypes::OPERATOR_EQ: return "DataTypes::OPERATOR_EQ"; */
+	// 	}
+	// };
 };

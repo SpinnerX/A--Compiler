@@ -10,7 +10,7 @@ project(${PROJECT_NAME})
 set(
 	all_src
 	src/main.cc
-	src/tokenizer/token.cc
+	src/lexer/token.cc
 	src/parser/parserTree.cc
 )
 
@@ -20,5 +20,5 @@ target_include_directories(
 	${PROJECT_NAME}
 	PUBLIC
 	include/
-	include/tokenizer
+	include/lexer
 )
