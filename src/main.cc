@@ -63,6 +63,8 @@ int main(int argc, char* argv[]){
 
 #include <cctype>
 #include <iostream>
+#include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -92,11 +94,36 @@ enum class TYPE : uint8_t {
 };
 
 struct Token{
+	Token() = default;
 	Token(TYPE t, const std::string p) : type(t), payload(p) {}
+
+	bool operator==(const TYPE other) const {
+		return (type == other);
+	}
 
 	TYPE type;
 	std::string payload;
 };
+
+//! @note Used for debugging purposes
+//! @note  Making sure that we are assigning the correct Enum to our tokens
+static std::string typeToString(TYPE type){
+	switch (type) {
+	case TYPE::NAME: return "NAME";
+	case TYPE::IDENTIFER: return "IDENTIFIER";
+	case TYPE::OP: return "OP";
+	case TYPE::LITERAL: return "LITERAL";
+	case TYPE::EQ_OP: return "EQ_OP";
+	case TYPE::ADD_OP: return "ADD_OP";
+	case TYPE::SUB_OP: return "SUB_OP";
+	case TYPE::MUL_OP: return "MUL_OP";
+	case TYPE::DIV_OP: return "DIV_OP";
+	case TYPE::PARANTH_BEGIN: return "BEGIN PARANTH";
+	case TYPE::PARANTH_END: return "END PARANTH";
+	default: return "Default Sent Only!";
+	}
+	return "No Type found!";
+}
 
 template<typename T>
 void print(const T& value, char delimieter='\n'){
@@ -107,31 +134,6 @@ template<typename T>
 void print(std::ostream& outs, const T& value, char delimieter='\n'){
 	outs << value << delimieter;
 }
-
-struct ASTNode{
-	ASTNode* left = nullptr;
-	ASTNode* right = nullptr;
-	std::string payload;
-	TYPE type;
-
-	ASTNode(){
-		delete left;
-		delete right;
-	}
-};
-
-class AST{
-public:
-	//! @note Use this to evaluate our tokens and it's information
-	//! @note Using evaluate() to build our AST now that we have what we need with our tokenized expressions.
-	bool evaluate(std::vector<Token>& tokens){
-
-		return true;
-	}
-
-private:
-	ASTNode* root;
-};
 
 std::vector<Token> tokenize(const std::string& tokenInput){
 	std::unordered_map<char, TYPE> operators;
@@ -204,26 +206,146 @@ std::vector<Token> tokenize(const std::string& tokenInput){
 	return tokens;
 }
 
+/**
+@expression is --> (2 + 2) * 10
+@note This is initially how the AST is going to be parsing our syntax.
 
+		+
+	   / \
+	  (  [*]
+	 /     \
+	[+]    10
+   /  \
+   2  2
+   /
+   )
+*/
 
-std::string typeToString(TYPE type){
-	switch (type) {
-	case TYPE::NAME: return "NAME";
-	case TYPE::IDENTIFER: return "IDENTIFIER";
-	case TYPE::OP: return "OP";
-	case TYPE::LITERAL: return "LITERAL";
-	case TYPE::EQ_OP: return "EQ_OP";
-	case TYPE::ADD_OP: return "ADD_OP";
-	case TYPE::SUB_OP: return "SUB_OP";
-	case TYPE::MUL_OP: return "MUL_OP";
-	case TYPE::DIV_OP: return "DIV_OP";
-	case TYPE::PARANTH_BEGIN: return "BEGIN PARANTH";
-	case TYPE::PARANTH_END: return "END PARANTH";
-	default: return "Default Sent Only!";
+struct ASTNode{
+	Token token;
+	ASTNode* parent = nullptr;
+	ASTNode* left = nullptr;
+	ASTNode* right = nullptr;
+
+	ASTNode(const Token& t) : token(t){}
+
+	~ASTNode(){
+		delete left;
+		delete right;
 	}
-	return "No Type found!";
-}
 
+	bool operator==(TYPE other) {
+		return (token.type == other);
+	}
+};
+
+/**
+//! @name AST
+	@param evaulate
+	@note Evaluating our tokens to produce the correct output based on the math expressions
+
+	@param getOutput
+ 	@note Returns the initial output from the expressions we are parsing.
+
+*/
+
+class AST{
+public:
+	AST(std::vector<Token>& other) : tokens(other), index(0), root(nullptr) {
+		operators.insert(TYPE::ADD_OP);
+		operators.insert(TYPE::SUB_OP);
+		operators.insert(TYPE::MUL_OP);
+		operators.insert(TYPE::DIV_OP);
+	}
+
+	//! @note Evaluating tokens into our AST
+	//! @note Reading in the tokens parsed from the tokenizer
+	//! @note Then we build the AST through these tokens
+	//! @note Use this to evaluate our tokens and it's information
+	//! @note Using evaluate() to build our AST now that we have what we need with our tokenized expressions.
+	//! @note Boolean returned, for keeping track of our initial state of this function, if the evaluation was valid or not.
+	//! @note How we are going to evaluate our operators precedence is by constantly iterate to the left until we hit a nullptr or an operator
+	//! @note When an operator occurs then we iterate the right node and that keeps repeating.
+	bool buildAST(){
+		print("Evaluate() was called!\n");
+		int size = tokens.size();
+
+		if(tokens.size() == 1){
+			root = new ASTNode(tokens[0]);
+			size = 1;
+			return true;
+		}
+
+		while(index < size){
+			//! @note We are getting our current node in std::vector<Token>
+			Token& token = tokens[index++];
+
+			//! @note We need to check if root is nullptr
+			//! @note Initializing the root before we continue with the AST
+			//! @note a TODO is probably adjusting the AST to accept incrementations and decrementations like (i++, or i--)
+			if(root == nullptr){
+				root = new ASTNode(token);
+			}
+
+			//! @note Going left if there are no operators
+			if(!operators.contains(token.type)){
+				if(root->left == nullptr){
+					root->left = new ASTNode(token);
+					// print("Left is value = " + token.payload);
+				}
+				root = root->left;
+			}
+			else{ //! @note Going right
+				if(root->right == nullptr){
+					//! @note Adding the operators (+, -, *, /)
+					root->parent = new ASTNode(token);
+					// print("Current Parent = " + root->parent->token.payload);
+
+
+					Token rightToken = tokens[index++];
+					root->right = new ASTNode(rightToken);
+					// print("Right is value = " + rightToken.payload);
+				}
+				root = root->right;
+			}
+		}
+
+		return true;
+	}
+
+	ASTNode* getAST() const { return root; }
+
+private:
+	//! @note Getting our current node that we are traversing in the AST
+	ASTNode* CurrentNode(){
+		//! @note
+		Token& token = tokens[index++];
+		ASTNode* newNode = new ASTNode(token);
+		newNode->token = token;
+		return newNode;
+	}
+
+private:
+	ASTNode* root;
+	uint32_t size;
+	std::vector<Token> tokens;
+	uint32_t index;
+	std::set<TYPE> operators;
+};
+
+
+class Parser{
+public:
+	Parser() = default;
+
+	template<typename T>
+	T getOutput(){
+
+		return T();
+	}
+};
+
+//! @note Making it easier to print out the tokens
 std::ostream& operator<<(std::ostream& outs, const std::vector<Token>& tokens){
 	for(const Token& token : tokens){
 		print(outs, "[Payload] 	" + token.payload, '\n');
@@ -235,6 +357,8 @@ std::ostream& operator<<(std::ostream& outs, const std::vector<Token>& tokens){
 
 
 int main(int argc, char** argv){
+	AST* ast = nullptr;
+
 	while(true){
 		print(">", ' ');
 		std::string tokenInput = "";
@@ -242,10 +366,23 @@ int main(int argc, char** argv){
 
 		if(tokenInput == "exit" || tokenInput == "exit()") break;
 
-		print("Tokenized Expression = " + tokenInput);
+		// print("Tokenized Expression = " + tokenInput);
 		std::vector<Token> tokens = tokenize(tokenInput);
+		print("Token Size is " + std::to_string(tokens.size()));
+		
+		ast = new AST(tokens);
 
-		cout << tokens << '\n';
+		if(!ast->evaluate()){
+			print("evaluate() state was invalid and returned false!");
+		}
+		else{
+			// print(ast->getOutput<int>());
+			// print("Output ==> " + std::to_string(ast->output()));
+			ast->test();
+			// ast->printAST();
+		}
+
+		// cout << tokens << '\n';
 	}
 	
 
