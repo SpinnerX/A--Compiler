@@ -1,72 +1,9 @@
-/*#include <cstring>
-#include <filesystem>
-#include <fstream>
-#include <tokenizer/token.h>
-#include <string>
-#include <iostream>
-#include <stack>
-#include <iostream>
-#include "Tokenizer.h"
-using namespace std;
-
-// @note reading from file.
-// @note fetching contents from file.
-std::string readFromFile(std::string file){
-	constexpr auto readSize = size_t(4096);
-	auto stream = std::ifstream(file.data());
-	stream.exceptions(std::ios_base::badbit);
-
-	if(!stream){
-		printf("File doesn't exist\n");
-		return "";
-	}
-
-	std::string out = {};
-	std::string buf = std::string(readSize, '\0');
-
-	while(stream.read(&buf[0], readSize)){
-		out.append(buf, 0, stream.gcount());
-	}
-
-	out.append(buf, 0, stream.gcount());
-	return out;
-}
-
-
-int main(int argc, char* argv[]){
-	string tokenInput = "Default";
-	A_Compiler::Tree tree;
-
-	while(true){
-		printf("> ");
-		getline(cin, tokenInput);
-
-		if(tokenInput == "exit" || tokenInput == "exit()") break;
-
-		// A_Compiler::Exp* tree = A_Compiler::strToExp(tokenInput);
-		// A_Compiler::Node* node = A_Compiler::strToExpression(tokenInput);
-		A_Compiler::Tree tree(tokenInput);
-		// A_Compiler::Node* node = tree.evaluate(tokenInput);
-
-		tree.evaluate();
-
-		// cout << node << '\n';
-
-		// tree->print();
-		// tree->release();
-		// printf("\n");
-	}
-
-
-	return 0;
-}*/
-
 #include <cctype>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <sstream>
 // #include "lexer/Tokenizer.h"
 using namespace std;
 // using namespace A_Compiler;
@@ -87,11 +24,13 @@ while(Compiler::IsRunning()){
 */
 
 enum class TYPE : uint8_t {
-	NAME, OP, LITERAL, IDENTIFER, EQ_OP, ADD_OP, SUB_OP, MUL_OP, DIV_OP,
+	NAME, OP, LITERAL, IDENTIFER, COMMA_END_STATEMENT,
+	EQ_OP, ADD_OP, SUB_OP, MUL_OP, DIV_OP,
 	PARANTH_BEGIN, PARANTH_END // Beginning and ending paranthesis
 };
 
 struct Token{
+	Token() = default;
 	Token(TYPE t, const std::string p) : type(t), payload(p) {}
 
 	TYPE type;
@@ -111,8 +50,7 @@ void print(std::ostream& outs, const T& value, char delimieter='\n'){
 struct ASTNode{
 	ASTNode* left = nullptr;
 	ASTNode* right = nullptr;
-	std::string payload;
-	TYPE type;
+
 
 	ASTNode(){
 		delete left;
@@ -204,7 +142,103 @@ std::vector<Token> tokenize(const std::string& tokenInput){
 	return tokens;
 }
 
+Token readToken(const std::string& tokenInput){
+	std::unordered_map<char, TYPE> operators;
+	operators.insert({'=', TYPE::EQ_OP});
+	operators.insert({'+', TYPE::ADD_OP});
+	operators.insert({'-', TYPE::SUB_OP});
+	operators.insert({'*', TYPE::MUL_OP});
+	operators.insert({'/', TYPE::DIV_OP});
 
+
+	Token token;
+	std::string var="", literal_numeral="", operator_id="", begin_paranth="", end_paranth="";
+
+	//! @note To check if it is a variable we can use std::isalpha to check for that variable name
+	//! @note We are checking if we are coming across variables
+	//! @note Operation is if we do not come across alphabetical values we are coming across numeral values
+	//! @note Each string variable correspond to different types that we are parsing.
+	for(char ch : tokenInput){
+		//! @note After we parse the expression, if we reach a whitespace, then we add that token to our vector
+
+		if(ch == '('){
+			begin_paranth = ch;
+		}
+
+		if(std::isalpha((unsigned int)ch)){
+			var += ch;
+		}
+		else if(std::isdigit(ch)){
+			literal_numeral += ch;
+		}
+		else if(operators.contains(ch)){
+			operator_id = ch;
+		}
+
+		if(ch == ')'){
+			end_paranth = ch;
+		}
+
+		//! @note One thing to consider is that we did not consider what if we reached the end of the expression and there is no space afterwards.
+		//! @note Then we can check if we reach the null character, or we simply reached tokenInput.back() which is the last element.
+		if(ch == ' ' || ch == tokenInput.back()){
+			if(!begin_paranth.empty()){
+				token = Token(TYPE::PARANTH_BEGIN, begin_paranth);
+				begin_paranth.clear();
+			}
+
+			if(!var.empty()){
+				token = Token(TYPE::IDENTIFER, var);
+				var.clear();
+			}
+			
+			if(!operator_id.empty()){
+				char id = operator_id.at(0);
+				token = Token(operators[id], operator_id);
+				operator_id.clear();
+			}
+
+			if(!literal_numeral.empty()){
+				token = Token(TYPE::LITERAL, literal_numeral);
+				literal_numeral.clear();
+			}
+
+			if(!end_paranth.empty()){
+				token = Token(TYPE::PARANTH_END, end_paranth);
+				end_paranth.clear();
+			}
+		}
+	}
+
+	return token;
+}
+
+std::vector<Token> tokenize(std::ifstream& tokenInputFile){
+	std::vector<Token> tokens;
+	while(true){
+		if (tokenInputFile.eof()){ //We reached the end of file, or the user hit ctrl-d
+			return std::vector<Token>();
+		}
+
+		std::string line;
+		tokenInputFile >> line;
+
+		if (!tokenInputFile) {
+			tokenInputFile.clear(); //Clear error code
+			std::string s;
+			tokenInputFile >> s; //Remove the word that caused the error
+			continue;
+		}
+		// std::string line;
+		// tokenInputFile >> line;
+		// print("line = " + line);
+
+		// print(line);
+
+		tokens  = tokenize(line);
+	}
+	return tokens;
+}
 
 std::string typeToString(TYPE type){
 	switch (type) {
@@ -219,12 +253,14 @@ std::string typeToString(TYPE type){
 	case TYPE::DIV_OP: return "DIV_OP";
 	case TYPE::PARANTH_BEGIN: return "BEGIN PARANTH";
 	case TYPE::PARANTH_END: return "END PARANTH";
+	case TYPE::COMMA_END_STATEMENT: return "COMMA END";
 	default: return "Default Sent Only!";
 	}
 	return "No Type found!";
 }
 
 std::ostream& operator<<(std::ostream& outs, const std::vector<Token>& tokens){
+	
 	for(const Token& token : tokens){
 		print(outs, "[Payload] 	" + token.payload, '\n');
 		print(outs, "[TYPE] 		" + typeToString(token.type), '\n');
@@ -235,17 +271,28 @@ std::ostream& operator<<(std::ostream& outs, const std::vector<Token>& tokens){
 
 
 int main(int argc, char** argv){
-	while(true){
-		print(">", ' ');
-		std::string tokenInput = "";
-		getline(cin, tokenInput);
 
-		if(tokenInput == "exit" || tokenInput == "exit()") break;
+	if(argc != 1){
+		print(">>>> Argon Compiler");
+		std::string filename = "main.acc";
+		std::ifstream ins(filename);
+		std::vector<Token> tokens = tokenize(ins);
 
-		print("Tokenized Expression = " + tokenInput);
-		std::vector<Token> tokens = tokenize(tokenInput);
+		std::cout << tokens << '\n';
+	}
+	else{
+		while(true){
+			print(">", ' ');
+			std::string tokenInput = "";
+			getline(cin, tokenInput);
 
-		cout << tokens << '\n';
+			if(tokenInput == "exit" || tokenInput == "exit()") break;
+
+			print("Tokenized Expression = " + tokenInput);
+			std::vector<Token> tokens = tokenize(tokenInput);
+
+			cout << tokens << '\n';
+		}
 	}
 	
 

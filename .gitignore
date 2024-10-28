@@ -38,4 +38,4 @@ compile_commands.json
 .cache/
 
 CMakeUserPresets.json
-.cache
+.cache/

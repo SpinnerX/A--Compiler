@@ -14,6 +14,8 @@ set(
 	src/parser/parserTree.cc
 )
 
+file(COPY main.acc DESTINATION ${CMAKE_BINARY_DIR})
+
 add_executable(${PROJECT_NAME} ${all_src})
 
 target_include_directories(
